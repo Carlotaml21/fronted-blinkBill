@@ -67,14 +67,14 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* Formulario flotante */}
+      
       {showForm && (
         <div className="absolute top-28 left-1/2 z-50">
           <CompanyForm onSubmit={handleAddCompany} />
         </div>
       )}
 
-      {/* Cards de empresas */}
+      
       <div className="space-y-4">
         {filteredCompanies.map((company, idx) => (
           <CompanyCard
