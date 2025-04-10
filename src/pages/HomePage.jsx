@@ -60,7 +60,7 @@ export default function HomePage() {
           className="w-10 h-10 flex items-center justify-center"
         >
           <img
-            src="/plusButton.png"
+            src="/src/assets/plusButton.png"
             alt="Botón añadir"
             className="w-9 h-9 object-contain hover:scale-105 transition-transform"
           />
