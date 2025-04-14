@@ -10,6 +10,8 @@ export default function CompanyForm({ onSubmit }) {
     postalCode: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -17,6 +19,23 @@ export default function CompanyForm({ onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "El nombre de la empresa es obligatorio.";
+    }
+
+    if (!/^\d{8}[XYZ]$/.test(formData.nif)) {
+      newErrors.nif = "El NIF debe tener 8 números seguidos de una letra (X, Y o Z).";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Si todo va bien
+    setErrors({});
     onSubmit(formData);
     setFormData({
       name: "",
@@ -50,9 +69,13 @@ export default function CompanyForm({ onSubmit }) {
             name={name}
             value={formData[name]}
             onChange={handleChange}
-            className="border border-gray-300 rounded-md p-2"
-            required={name === "name" || name === "nif"}
+            className={`border rounded-md p-2 ${
+              errors[name] ? "border-red-500" : "border-gray-300"
+            }`}
           />
+          {errors[name] && (
+            <span className="text-red-500 text-xs mt-1">{errors[name]}</span>
+          )}
         </div>
       ))}
 
@@ -65,4 +88,5 @@ export default function CompanyForm({ onSubmit }) {
     </form>
   );
 }
+
 
