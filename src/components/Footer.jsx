@@ -1,22 +1,23 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
     <footer className="bg-gray-100 text-sm text-black py-4 px-6 flex justify-between items-center border-t border-gray-300">
-      {/* Lado izquierdo: copyright + enlaces */}
+      
       <div className="flex items-center space-x-20">
         <span>©Copyright 2025</span>
         <div className="space-x-10">
-          <a href="/sobre" className="underline hover:text-[#26bfbf]">
+        <Link to="/about" className="underline hover:text-[#26bfbf]">
             Sobre BlinkBill
-          </a>
-          <a href="/privacidad" className="underline hover:text-[#26bfbf]">
-            Políticas de Privacidad
-          </a>
+          </Link>
+          <Link to="/privacy" className="underline hover:text-[#26bfbf]">
+          Políticas de Privacidad
+          </Link>
         </div>
       </div>
 
-      {/* Lado derecho: autor + GitHub */}
+      
       <div className="flex items-center space-x-2">
         <span>
           Creado por <strong>Carlotaml21</strong>

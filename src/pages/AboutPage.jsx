@@ -27,7 +27,7 @@ const AboutPage = () => {
 
       <div className="mt-8">
         <img 
-          src="/logoBlinkBill.png" // Asegúrate de tener esta imagen en la carpeta pública o cambiar la ruta
+          src="/src/assets/logoBlinkBill.png" 
           alt="BlinkBill logo" 
           className="w-24 h-24 mx-auto"
         />

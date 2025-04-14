@@ -1,3 +1,5 @@
+import{BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Header from './components/Header';
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
@@ -7,11 +9,19 @@ import PrivacyPage from "./pages/PrivacyPage"
 
 function App() {
   return (
-    <>
+    <Router>
       <Header />
-      <PrivacyPage/>
+
+      <Routes>
+      <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+      </Routes>
+      
+      
       <Footer />
-    </>
+      </Router>
   );
 }
 
