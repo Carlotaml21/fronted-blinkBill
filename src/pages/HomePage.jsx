@@ -4,32 +4,7 @@ import CompanyCard from "../components/CompanyCard";
 import CompanyForm from "../components/CompanyForm";
 
 export default function HomePage() {
-  const [companies, setCompanies] = useState([
-    {
-      name: "Nombre Empresa 1",
-      nif: "12345678A",
-      address: "Calle 1",
-      city: "Ciudad 1",
-      province: "Provincia 1",
-      postalCode: "11111",
-    },
-    {
-      name: "Nombre Empresa 2",
-      nif: "87654321B",
-      address: "Calle 2",
-      city: "Ciudad 2",
-      province: "Provincia 2",
-      postalCode: "22222",
-    },
-    {
-      name: "Nombre Empresa 3",
-      nif: "11223344C",
-      address: "Calle 3",
-      city: "Ciudad 3",
-      province: "Provincia 3",
-      postalCode: "33333",
-    },
-  ]);
+  const [companies, setCompanies] = useState([]);
 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
