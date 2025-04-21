@@ -25,8 +25,8 @@ export default function CompanyForm({ onSubmit }) {
       newErrors.name = "El nombre de la empresa es obligatorio.";
     }
 
-    if (!/^\d{8}[XYZ]$/.test(formData.nif)) {
-      newErrors.nif = "El NIF debe tener 8 números seguidos de una letra (X, Y o Z).";
+    if (!/^[A-Za-z]\d{8}$/.test(formData.nif)) {
+      newErrors.nif = "El NIF debe empezar con una letra seguida de 8 números.";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -34,7 +34,7 @@ export default function CompanyForm({ onSubmit }) {
       return;
     }
 
-    // Si todo va bien
+   
     setErrors({});
     onSubmit(formData);
     setFormData({
