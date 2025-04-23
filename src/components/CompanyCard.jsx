@@ -14,6 +14,14 @@ export default function CompanyCard({ company, onDelete, onSave }) {
     { name: "postalCode", label: "Código Postal" },
   ];
 
+  const mapCompanyToBackend = (company) => {
+    const { nif, ...rest } = company;
+    return {
+      ...rest,
+      taxId: nif,
+    };
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedCompany({ ...editedCompany, [name]: value });
@@ -25,20 +33,42 @@ export default function CompanyCard({ company, onDelete, onSave }) {
     if (!editedCompany.name.trim()) {
       newErrors.name = "El nombre de la empresa es obligatorio.";
     }
-    if (!/^[A-Z]\d{8}$/.test(editedCompany.nif)) {
+    if (!/^[A-Za-z]\d{8}$/.test(editedCompany.nif)) {
       newErrors.nif = "El NIF debe empezar con una letra seguida de 8 números.";
     }
     return newErrors;
   };
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    onSave(editedCompany);
-    setIsEditing(false);
+
+    const companyToSend = mapCompanyToBackend(editedCompany);
+
+    try {
+      const response = await fetch('http://localhost:8080/v1/billing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(companyToSend),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al guardar la empresa');
+      }
+
+      const savedCompany = await response.json();
+      onSave(savedCompany);                     
+      setEditedCompany(savedCompany);         
+      setIsEditing(false);                     
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      setErrors({ general: 'No se pudo guardar la empresa. Intenta más tarde.' });
+    }
   };
 
   const handleEditClick = () => {
@@ -60,7 +90,7 @@ export default function CompanyCard({ company, onDelete, onSave }) {
             {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
           </>
         ) : (
-          company.name
+          editedCompany.name
         )}
       </h2>
 
@@ -82,9 +112,12 @@ export default function CompanyCard({ company, onDelete, onSave }) {
               </div>
             ) : (
               <p key={name}>
-                {label}: {company[name]}
+                {label}: {editedCompany[name]}
               </p>
             )
+          )}
+          {errors.general && (
+            <p className="text-red-500 text-sm mt-2">{errors.general}</p>
           )}
         </div>
 
@@ -92,6 +125,7 @@ export default function CompanyCard({ company, onDelete, onSave }) {
           <button
             onClick={onDelete}
             className="bg-teal-500 hover:bg-teal-600 text-[#1D3440] p-2 rounded-xl transition shadow-lg"
+            aria-label="Eliminar empresa"
           >
             <Trash size={20} />
           </button>
@@ -101,6 +135,7 @@ export default function CompanyCard({ company, onDelete, onSave }) {
             className={`${
               isEditing ? "bg-green-500 hover:bg-green-600 text-white" : "bg-teal-500 hover:bg-teal-600 text-[#1D3440]"
             } p-2 rounded-xl transition shadow-lg`}
+            aria-label={isEditing ? "Guardar cambios" : "Editar empresa"}
           >
             {isEditing ? "Guardar" : <Pencil size={20} />}
           </button>
@@ -109,6 +144,7 @@ export default function CompanyCard({ company, onDelete, onSave }) {
     </div>
   );
 }
+
 
 
 
