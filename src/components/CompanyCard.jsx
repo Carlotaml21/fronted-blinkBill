@@ -1,5 +1,6 @@
 import { Pencil, Trash } from "lucide-react";
 import { useState } from "react";
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function CompanyCard({ company, onDelete, onSave }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -49,8 +50,8 @@ export default function CompanyCard({ company, onDelete, onSave }) {
     const companyToSend = mapCompanyToBackend(editedCompany);
 
     try {
-      const response = await fetch('http://localhost:8080/v1/billing', {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/v1/billing/${company.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -62,12 +63,36 @@ export default function CompanyCard({ company, onDelete, onSave }) {
       }
 
       const savedCompany = await response.json();
-      onSave(savedCompany);                     
-      setEditedCompany(savedCompany);         
-      setIsEditing(false);                     
+      onSave(savedCompany);
+      setEditedCompany({
+        id: savedCompany.id,
+        name: savedCompany.name,
+        nif: savedCompany.taxId,
+        address: savedCompany.address,
+        city: savedCompany.city,
+        province: savedCompany.province,
+        postalCode: savedCompany.postalCode,
+      });
+      setIsEditing(false);
     } catch (error) {
       console.error('Error al guardar:', error);
       setErrors({ general: 'No se pudo guardar la empresa. Intenta más tarde.' });
+    }
+  };
+
+  const handleDeleteClick = async () => {
+    try {
+      const response = await fetch(`${API_URL}/v1/billing/${company.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar la empresa');
+      }
+
+      onDelete(company.id);
+    } catch (error) {
+      console.error('Error al eliminar:', error);
     }
   };
 
@@ -123,7 +148,7 @@ export default function CompanyCard({ company, onDelete, onSave }) {
 
         <div className="flex gap-2 ml-4 mt-20">
           <button
-            onClick={onDelete}
+            onClick={handleDeleteClick}
             className="bg-teal-500 hover:bg-teal-600 text-[#1D3440] p-2 rounded-xl transition shadow-lg"
             aria-label="Eliminar empresa"
           >
@@ -144,9 +169,3 @@ export default function CompanyCard({ company, onDelete, onSave }) {
     </div>
   );
 }
-
-
-
-
-
-
