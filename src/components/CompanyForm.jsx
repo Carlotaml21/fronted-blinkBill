@@ -1,6 +1,7 @@
 import { useState } from "react";
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-export default function CompanyForm({ onSubmit }) {
+export default function CompanyForm({ onCompaniesReload }) {
   const [formData, setFormData] = useState({
     name: "",
     nif: "",
@@ -15,36 +16,111 @@ export default function CompanyForm({ onSubmit }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const validate = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "El nombre de la empresa es obligatorio.";
     }
 
-    if (!/^[A-Z]\d{8}$/.test(formData.nif)) {
+    if (!formData.nif.trim() || !/^[A-Za-z]\d{8}$/.test(formData.nif)) {
       newErrors.nif = "El NIF debe empezar con una letra seguida de 8 números.";
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (!formData.address.trim()) {
+      newErrors.address = "La dirección es obligatoria.";
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = "La ciudad es obligatoria.";
+    }
+
+    if (!formData.province.trim()) {
+      newErrors.province = "La provincia es obligatoria.";
+    }
+
+    if (!formData.postalCode.trim()) {
+      newErrors.postalCode = "El código postal es obligatorio.";
+    } else if (!/^\d+$/.test(formData.postalCode.trim())) {
+      newErrors.postalCode = "El código postal debe ser numérico.";
+    } else if (formData.postalCode.trim().length !== 5) {
+      newErrors.postalCode = "El código postal debe tener 5 dígitos.";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const validationErrors = validate();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
-    // Si todo va bien
     setErrors({});
-    onSubmit(formData);
-    setFormData({
-      name: "",
-      nif: "",
-      address: "",
-      city: "",
-      province: "",
-      postalCode: "",
-    });
+
+    const billingData = {
+      name: formData.name.trim(),
+      taxId: formData.nif.trim(),
+      address: formData.address.trim(),
+      city: formData.city.trim(),
+      province: formData.province.trim(),
+      postalCode: parseInt(formData.postalCode.trim(), 10),
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/v1/billing`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(billingData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al crear la empresa");
+      }
+
+      await reloadCompanies();
+
+      setFormData({
+        name: "",
+        nif: "",
+        address: "",
+        city: "",
+        province: "",
+        postalCode: "",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const reloadCompanies = async () => {
+    try {
+      const response = await fetch(`${API_URL}/v1/billing`);
+      if (!response.ok) {
+        throw new Error("Error al obtener todas las empresas");
+      }
+      const data = await response.json();
+      const adaptedCompanies = data.map((company) => ({
+        id: company.id,
+        name: company.name,
+        nif: company.taxId,
+        address: company.address,
+        city: company.city,
+        province: company.province,
+        postalCode: company.postalCode,
+      }));
+      onCompaniesReload(adaptedCompanies);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -54,8 +130,7 @@ export default function CompanyForm({ onSubmit }) {
     >
       <h2 className="text-xl font-semibold text-[#1D3440]">Añade una Empresa</h2>
 
-      {[
-        { label: "Nombre Empresa", name: "name" },
+      {[{ label: "Nombre Empresa", name: "name" },
         { label: "NIF", name: "nif" },
         { label: "Dirección", name: "address" },
         { label: "Ciudad", name: "city" },
@@ -88,5 +163,3 @@ export default function CompanyForm({ onSubmit }) {
     </form>
   );
 }
-
-

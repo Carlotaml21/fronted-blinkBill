@@ -1,9 +1,10 @@
+// SearchBar.jsx
 import { Search } from "lucide-react";
 
 export default function SearchBar({ value, onChange, onSearch }) {
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(); 
+    onSearch();
   };
 
   return (
